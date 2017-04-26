@@ -10,31 +10,13 @@ except:
 import sys
 
 from threatconnect import ThreatConnect
-
-OBJECTS = {
-    'groups': {
-        'adversary': "tc.adversaries()",
-        'campaign': "tc.campaigns()",
-        'document': "tc.documents()",
-        'email': "tc.emails()",
-        'incident': "tc.incidents()",
-        'signature': "tc.signatures()",
-        'threat': "tc.threats()",
-    },
-    'indicators': {
-        'address': "0.0.0.0",
-        'email_address': "example@example.com",
-        'file': "8743b52063cd84097a65d1633f5c74f5",
-        'host': "example.com",
-        'url': "http://example.com/test/index.html",
-    },
-}
+from threatconnect.Config.IndicatorType import IndicatorType
 
 
 def init_parser():
     """Initialize the argument parser."""
     parser = argparse.ArgumentParser(description="Populate TC with test data")
-    parser.add_argument(nargs=1, dest="owner", type=str,
+    parser.add_argument(dest="owner", type=str,
                         help="owner to populate")
 
     return parser.parse_args()
@@ -62,25 +44,50 @@ def init_tc():
     return tc
 
 
-def create_groups(tc, owner):
-    """create_groups function."""
-    for group in OBJECTS['groups']:
-        group_type = None
+def create_groups(owner):
+    """Create groups."""
+    for group_type in OBJECTS['groups']:
+        print("Creating {} group".format(group_type))
+        group_object = None
 
         # instantiate object of a group type
-        exec("group_type = OBJECTS['groups'][group]")
-        # get the human readable name of the group type
-        group_type_name = OBJECTS['groups'][group].split(".")[1][:-2]
+        group_object = OBJECTS['groups'][group_type]
 
         # create a new object of the current type
-        new_object = group_type.add('{} Example'.format(group_type_name),
-                                    owner)
+        new_object = group_object.add('{} Example'.format(group_type.title()),
+                                      owner)
+
         # add a description attribute
         new_object.add_attribute('Description', 'Description Example')
-        # add a tag
-        new_object.add_tag('Example')
+        # add a source attribute
+        new_object.add_attribute('Source', 'Source Example')
+
         # add a security label
         new_object.set_security_label('TLP Green')
+        # add a tag
+        new_object.add_tag('Example')
+
+        """ SPECIFIC PROPERTIES """
+        # document specific properties
+        if group_type == "document":
+            # add an event date
+            new_object.set_file_name('test.txt')
+        # email specific properties
+        elif group_type == "email":
+            new_object.set_body('This is an email body.')
+            new_object.set_header('This is an improper email header.')
+            new_object.set_subject('This is an email subject.')
+        # incident specific properties
+        elif group_type == "incident":
+            # add an event date
+            new_object.set_event_date('2017-03-21T00:00:00Z')
+        # signature specific properties
+        elif group_type == "signature":
+            new_object.set_file_name('bad_file.txt')
+            # set the type of the Signature
+            new_object.set_file_type('YARA')
+            # set the contents of the signature
+            new_object.set_file_text("rule example_sig : example")
 
         try:
             # create the new object
@@ -90,19 +97,34 @@ def create_groups(tc, owner):
             sys.exit(1)
 
 
-def create_indicators(tc, owner):
-    """create_indicators function."""
+def create_indicators(owner):
+    """Create indicators."""
     indicators = tc.indicators()
 
     for indicator_type in OBJECTS['indicators']:
-        new_indicator = indicators.add(OBJECTS['indicators'][indicator_type],
-                                       owner)
+        print("Creating {} indicator".format(indicator_type))
+        if OBJECTS['indicators'][indicator_type].get('type'):
+            # create a custom indicator
+            new_indicator = indicators.add(OBJECTS['indicators'][indicator_type]['indicator'],
+                                           owner=owner, type=OBJECTS['indicators'][indicator_type]['type'],
+                                           api_entity=indicator_type)
+        else:
+            # create a standard indicator
+            new_indicator = indicators.add(OBJECTS['indicators'][indicator_type]['indicator'], owner)
+
+        # set indicator's ratings
         new_indicator.set_confidence(75)
         new_indicator.set_rating(2.5)
 
-        new_indicator.add_attribute('Description', 'Example Attribute')
-        new_indicator.add_tag('Example')
+        # add a description attribute
+        new_indicator.add_attribute('Description', 'Description Example')
+        # add a source attribute
+        new_indicator.add_attribute('Source', 'Source Example')
+
+        # add a security label
         new_indicator.set_security_label('TLP White')
+        # add a tag
+        new_indicator.add_tag('Example')
 
         try:
             new_indicator.commit()
@@ -125,14 +147,11 @@ def main():
     """."""
     args = init_parser()
 
-    # initialize TC instance
-    tc = init_tc()
-
     # create group objects
-    create_groups(tc, args.owner)
+    create_groups(args.owner)
 
     # create indicator objects
-    create_indicators(tc, args.owner)
+    create_indicators(args.owner)
 
     # create victim
     # create_victim()
@@ -142,4 +161,68 @@ def main():
 
 
 if __name__ == '__main__':
+    # initialize TC instance
+    tc = init_tc()
+
+    OBJECTS = {
+        'groups': {
+            'adversary': tc.adversaries(),
+            'campaign': tc.campaigns(),
+            'document': tc.documents(),
+            'email': tc.emails(),
+            'incident': tc.incidents(),
+            'signature': tc.signatures(),
+            'threat': tc.threats(),
+        },
+        'indicators': {
+            'address': {
+                'indicator': "1.1.1.1"
+            },
+            'asn': {
+                'indicator': {
+                    'AS Number': "ASN22"
+                },
+                'type': IndicatorType.CUSTOM_INDICATORS
+            },
+            'cidrBlock': {
+                'indicator': {
+                    'Block': "192.168.0.0/29"
+                },
+                'type': IndicatorType.CUSTOM_INDICATORS
+            },
+            'email_address': {
+                'indicator': "john.galt@example.com"
+            },
+            'file': {
+                'indicator': "8743b52063cd84097a65d1633f5c74f5"
+            },
+            'host': {
+                'indicator': "example.com"
+            },
+            'mutex': {
+                'indicator': {
+                    'Mutex': "ExAmPLe MUtEx"
+                },
+                'type': IndicatorType.CUSTOM_INDICATORS
+            },
+            'registryKey': {
+                'indicator': {
+                    'Key Name': "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Hardware Profiles\Current",
+                    'Value Name': "Autopopulate",
+                    'Value Type': "REG_DWORD"
+                },
+                'type': IndicatorType.CUSTOM_INDICATORS
+            },
+            'url': {
+                'indicator': "https://example.com/test/bingo.html"
+            },
+            'userAgent': {
+                'indicator': {
+                    'User Agent String': "PeachWebKit/100.00 (KHTML, like Nothing Else)"
+                },
+                'type': IndicatorType.CUSTOM_INDICATORS
+            },
+        },
+    }
+
     main()
