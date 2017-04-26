@@ -89,4 +89,4 @@ ENV/
 .ropeproject
 
 # Config file
-.conf
+*.conf
