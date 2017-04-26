@@ -37,3 +37,5 @@ python tc_populate.py [-h] owner
 ```
 
 The script works in python 2.x and 3.x .
+
+![Enjoy the process of creating... but not too much.](https://raw.githubusercontent.com/fhightower/threatconnect-populator/master/creating.png)
