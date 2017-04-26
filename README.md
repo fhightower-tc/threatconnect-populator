@@ -10,6 +10,24 @@ This script assumes that the following things are true of the owner in which you
   - `TLP White`
   - `TLP Green`
 
+## Installation
+
+**Disclaimer:** This script was designed only for testing ThreatConnect. Your use of this script acknowledges that you accept any and all risk and unintended consequences of using the script.
+
+In terminal/bash do the following:
+
+```
+# clone the repo.
+git clone https://github.com/fhightower/threatconnect-populator.git
+
+# move into the repo's directory
+cd threatconnect-populator
+
+# setup a tc.conf file
+vi ./tc.conf  
+# ^ paste your creds and config. settings into the file (see: https://docs.threatconnect.com/en/latest/python/python_sdk.html#configuration)
+```
+
 ## Usage
 
 The script expects one argument providing the owner into which the data will be created:
@@ -17,3 +35,5 @@ The script expects one argument providing the owner into which the data will be 
 ```
 python tc_populate.py [-h] owner
 ```
+
+The script works in python 2.x and 3.x .
