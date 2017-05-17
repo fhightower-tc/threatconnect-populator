@@ -128,6 +128,8 @@ def create_indicators(owner):
         new_indicator.set_security_label("TLP White")
         # add a tag
         new_indicator.add_tag(TAG)
+        # add a tag
+        new_indicator.add_tag("False Positive")
 
         try:
             new_indicator.commit()
