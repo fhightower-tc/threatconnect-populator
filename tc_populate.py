@@ -133,14 +133,84 @@ def create_indicators(owner):
             sys.exit(1)
 
 
-def create_victim():
-    """create_victim function."""
-    raise NotImplementedError("Victim creation coming soon")
+def create_victim(owner):
+    """Create Victim."""
+    from threatconnect.Config.ResourceType import ResourceType
+    from threatconnect.VictimAssetObject import VictimAssetObject
+
+    print("Creating victim")
+
+    # instantiate Victims object
+    victims = tc.victims()
+
+    # create new Victim
+    victim = victims.add('Books', owner)
+
+    # set victim details (all are OPTIONAL)
+    victim.set_nationality('Canadian')
+    victim.set_org('Royal Canadian Mounted Police')
+    victim.set_suborg('Quebec Office')
+    victim.set_work_location('Quebec')
+
+    # add an email address asset to new victim (OPTIONAL)
+    asset = VictimAssetObject(ResourceType.VICTIM_EMAIL_ADDRESSES)
+    asset.set_address('libros@example.com')
+    asset.set_address_type('Personal')
+    victim.add_asset(asset)
+
+    # add a network account asset to the new victim (OPTIONAL)
+    asset = VictimAssetObject(ResourceType.VICTIM_NETWORK_ACCOUNTS)
+    asset.set_account('book-are-us')
+    asset.set_network('Active Directory')
+    victim.add_asset(asset)
+
+    # add a phone asset to the new victim (OPTIONAL)
+    asset = VictimAssetObject(ResourceType.VICTIM_PHONES)
+    asset.set_phone_type('1-800-867-5309')
+    victim.add_asset(asset)
+
+    # add a social network asset to the new victim (OPTIONAL)
+    asset = VictimAssetObject(ResourceType.VICTIM_SOCIAL_NETWORKS)
+    asset.set_account('@leer')
+    asset.set_network('Twitter')
+    victim.add_asset(asset)
+
+    # add a website asset to the new victim (OPTIONAL)
+    asset = VictimAssetObject(ResourceType.VICTIM_WEBSITES)
+    asset.set_website('learning.com')
+    victim.add_asset(asset)
+
+    try:
+        # create the Victim
+        victim.commit()
+    except RuntimeError as e:
+        print('Error: {0}'.format(e))
+        sys.exit(1)
 
 
-def create_task():
-    """create_task function."""
-    raise NotImplementedError("Task creation coming soon")
+def create_task(owner):
+    """Create Task."""
+    # instantiate Tasks object
+    tasks = tc.tasks()
+
+    print("Creating task")
+
+    # create a new Task in the given owner
+    task = tasks.add('New Task', owner)
+
+    # add a description attribute
+    task.add_attribute('Description', 'Description Example')
+    # add a tag
+    task.add_tag('Example')
+    # add a security label
+    task.add_security_label('TLP Green')
+
+    try:
+        # create the Task
+        task.commit()
+    except RuntimeError as e:
+        print('Error: {0}'.format(e))
+        sys.exit(1)
 
 
 def main():
@@ -154,10 +224,10 @@ def main():
     create_indicators(args.owner)
 
     # create victim
-    # create_victim()
+    create_victim(args.owner)
 
     # create task
-    # create_task()
+    create_task(args.owner)
 
 
 if __name__ == '__main__':
