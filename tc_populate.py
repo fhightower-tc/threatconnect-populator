@@ -291,7 +291,7 @@ def cleanup(owner):
     for task in tasks:
         task.delete()
 
-    print("\nEverything is cleaned up. You"re good to go!")
+    print("\nEverything is cleaned up. You're good to go!")
 
 
 def main():
