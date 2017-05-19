@@ -136,6 +136,30 @@ def create_indicators(owner):
             print("Error: {0}".format(e))
 
 
+def create_task(owner):
+    """Create Task."""
+    # instantiate Tasks object
+    tasks = tc.tasks()
+
+    print("Creating task")
+
+    # create a new Task in the given owner
+    task = tasks.add("New Task", owner)
+
+    # add a description attribute
+    task.add_attribute("Description", "Description Example")
+    # add a tag
+    task.add_tag(TAG)
+    # add a security label
+    task.add_security_label("TLP Green")
+
+    try:
+        # create the Task
+        task.commit()
+    except RuntimeError as e:
+        print("Error: {0}".format(e))
+
+
 def create_victim(owner):
     """Create Victim."""
     from threatconnect.Config.ResourceType import ResourceType
@@ -193,30 +217,6 @@ def create_victim(owner):
         print("Error: {0}".format(e))
 
 
-def create_task(owner):
-    """Create Task."""
-    # instantiate Tasks object
-    tasks = tc.tasks()
-
-    print("Creating task")
-
-    # create a new Task in the given owner
-    task = tasks.add("New Task", owner)
-
-    # add a description attribute
-    task.add_attribute("Description", "Description Example")
-    # add a tag
-    task.add_tag(TAG)
-    # add a security label
-    task.add_security_label("TLP Green")
-
-    try:
-        # create the Task
-        task.commit()
-    except RuntimeError as e:
-        print("Error: {0}".format(e))
-
-
 def cleanup(owner):
     """Delete all of the data that was just created."""
     # delete all of the groups
@@ -251,22 +251,6 @@ def cleanup(owner):
     for indicator in indicators:
         indicator.delete()
 
-    # delete the victim
-    victims = tc.victims()
-
-    # add filter(s) for victims
-    filter1 = victims.add_filter()
-    filter1.add_owner(owner)
-    filter1.add_tag(TAG)
-
-    try:
-        victims.retrieve()
-    except RuntimeError as e:
-        print("Error: {0}".format(e))
-
-    for victim in victims:
-        victim.delete()
-
     # delete the task
     tasks = tc.tasks()
 
@@ -283,6 +267,22 @@ def cleanup(owner):
     for task in tasks:
         task.delete()
 
+    # delete the victim
+    victims = tc.victims()
+
+    # add filter(s) for victims
+    filter1 = victims.add_filter()
+    filter1.add_owner(owner)
+    filter1.add_tag(TAG)
+
+    try:
+        victims.retrieve()
+    except RuntimeError as e:
+        print("Error: {0}".format(e))
+
+    for victim in victims:
+        victim.delete()
+
     print("\nEverything is cleaned up. You're good to go!")
 
 
@@ -296,16 +296,15 @@ def main():
     # create indicator objects
     create_indicators(args.owner)
 
-    # create victim
-    create_victim(args.owner)
-
     # create task
     create_task(args.owner)
+
+    # create victim
+    create_victim(args.owner)
 
     if args.cleanup:
         # delete everything we just created
         cleanup(args.owner)
-
 
 
 if __name__ == "__main__":
