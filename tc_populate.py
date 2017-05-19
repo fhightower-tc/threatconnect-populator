@@ -97,7 +97,6 @@ def create_groups(owner):
             new_object.commit()
         except RuntimeError as e:
             print("Error: {0}".format(e))
-            sys.exit(1)
 
 
 def create_indicators(owner):
@@ -135,7 +134,6 @@ def create_indicators(owner):
             new_indicator.commit()
         except RuntimeError as e:
             print("Error: {0}".format(e))
-            sys.exit(1)
 
 
 def create_victim(owner):
@@ -193,7 +191,6 @@ def create_victim(owner):
         victim.commit()
     except RuntimeError as e:
         print("Error: {0}".format(e))
-        sys.exit(1)
 
 
 def create_task(owner):
@@ -218,7 +215,6 @@ def create_task(owner):
         task.commit()
     except RuntimeError as e:
         print("Error: {0}".format(e))
-        sys.exit(1)
 
 
 def cleanup(owner):
@@ -235,7 +231,6 @@ def cleanup(owner):
         groups.retrieve()
     except RuntimeError as e:
         print("Error: {0}".format(e))
-        sys.exit(1)
 
     for group in groups:
         group.delete()
@@ -252,7 +247,6 @@ def cleanup(owner):
         indicators.retrieve()
     except RuntimeError as e:
         print("Error: {0}".format(e))
-        sys.exit(1)
 
     for indicator in indicators:
         indicator.delete()
@@ -269,7 +263,6 @@ def cleanup(owner):
         victims.retrieve()
     except RuntimeError as e:
         print("Error: {0}".format(e))
-        sys.exit(1)
 
     for victim in victims:
         victim.delete()
@@ -286,7 +279,6 @@ def cleanup(owner):
         tasks.retrieve()
     except RuntimeError as e:
         print("Error: {0}".format(e))
-        sys.exit(1)
 
     for task in tasks:
         task.delete()
