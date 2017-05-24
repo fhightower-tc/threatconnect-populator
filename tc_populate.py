@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Script to create all available objects in ThreatConnect."""
 
@@ -73,8 +73,11 @@ def create_groups(owner):
         """ SPECIFIC PROPERTIES """
         # document specific properties
         if group_type == "document":
-            # add an event date
+            # add a file name
             new_object.set_file_name("test.txt")
+            document_contents = "What hath God wrought?!?!"
+            # upload some content into the Document
+            new_object.upload(document_contents)
         # email specific properties
         elif group_type == "email":
             new_object.set_body("This is an email body.")
