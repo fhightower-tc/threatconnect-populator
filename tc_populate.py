@@ -131,6 +131,7 @@ def create_indicators(owner, groups):
             # create association with one of the groups (currently, this only works for non-custom indicators)
             group_index = random.randint(0, len(groups) - 1)
             new_indicator.associate_group(groups[group_index]['type'], groups[group_index]['id'])
+            # ^ once https://github.com/ThreatConnect-Inc/threatconnect-python/issues/49 is closed, the two lines above can be unindented so associations will be created with indicators of all types
 
         # set indicator"s ratings
         new_indicator.set_confidence(75)
