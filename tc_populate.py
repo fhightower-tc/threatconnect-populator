@@ -7,10 +7,12 @@ try:
     import ConfigParser
 except:
     import configparser as ConfigParser
+import random
 import sys
 
 from threatconnect import ThreatConnect
 from threatconnect.Config.IndicatorType import IndicatorType
+from threatconnect.Config.ResourceType import ResourceType
 
 
 def init_parser():
@@ -49,6 +51,8 @@ def init_tc():
 
 def create_groups(owner):
     """Create groups."""
+    created_groups = list()
+
     for group_type in OBJECTS["groups"]:
         print("Creating {} group".format(group_type))
         group_object = None
@@ -100,9 +104,16 @@ def create_groups(owner):
             new_object.commit()
         except RuntimeError as e:
             print("Error: {0}".format(e))
+        else:
+            created_groups.append({
+                'id': new_object.id,
+                'type': new_object.resource_type
+            })
+
+    return created_groups
 
 
-def create_indicators(owner):
+def create_indicators(owner, groups):
     """Create indicators."""
     indicators = tc.indicators()
 
@@ -116,6 +127,10 @@ def create_indicators(owner):
         else:
             # create a standard indicator
             new_indicator = indicators.add(OBJECTS["indicators"][indicator_type]["indicator"], owner)
+
+            # create association with one of the groups (currently, this only works for non-custom indicators)
+            group_index = random.randint(0, len(groups) - 1)
+            new_indicator.associate_group(groups[group_index]['type'], groups[group_index]['id'])
 
         # set indicator"s ratings
         new_indicator.set_confidence(75)
@@ -165,7 +180,6 @@ def create_task(owner):
 
 def create_victim(owner):
     """Create Victim."""
-    from threatconnect.Config.ResourceType import ResourceType
     from threatconnect.VictimAssetObject import VictimAssetObject
 
     print("Creating victim")
@@ -177,10 +191,10 @@ def create_victim(owner):
     victim = victims.add("Books", owner)
 
     # set victim details (all are OPTIONAL)
-    victim.set_nationality("Canadian")
-    victim.set_org("Royal Canadian Mounted Police")
-    victim.set_suborg("Quebec Office")
-    victim.set_work_location("Quebec")
+    victim.set_nationality("Global")
+    victim.set_org("Thinking")
+    victim.set_suborg("Learning")
+    victim.set_work_location("Everywhere")
 
     # add an email address asset to new victim (OPTIONAL)
     asset = VictimAssetObject(ResourceType.VICTIM_EMAIL_ADDRESSES)
@@ -207,7 +221,7 @@ def create_victim(owner):
 
     # add a website asset to the new victim (OPTIONAL)
     asset = VictimAssetObject(ResourceType.VICTIM_WEBSITES)
-    asset.set_website("learning.com")
+    asset.set_website("thinking.com")
     victim.add_asset(asset)
 
     # add a tag
@@ -294,10 +308,10 @@ def main():
     args = init_parser()
 
     # create group objects
-    create_groups(args.owner)
+    created_groups = create_groups(args.owner)
 
     # create indicator objects
-    create_indicators(args.owner)
+    create_indicators(args.owner, created_groups)
 
     # create task
     create_task(args.owner)
