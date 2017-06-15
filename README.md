@@ -1,5 +1,7 @@
 # ThreatConnect Populator
 
+[![Code Issues](https://www.quantifiedcode.com/api/v1/project/dd508e3927954df9b118ea9578c32b82/badge.svg)](https://www.quantifiedcode.com/app/project/dd508e3927954df9b118ea9578c32b82)
+
 This script will create one of every possible object in ThreatConnect for testing or whatever other use you can find for it.
 
 ## Prerequisites
