@@ -1,7 +1,6 @@
 # ThreatConnect Populator
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/531c2054c4874013b78ff7cebc46a6b2)](https://www.codacy.com/app/fhightower/threatconnect-populator?utm_source=github.com&utm_medium=referral&utm_content=fhightower/threatconnect-populator&utm_campaign=badger)
-[![Code Issues](https://www.quantifiedcode.com/api/v1/project/dd508e3927954df9b118ea9578c32b82/badge.svg)](https://www.quantifiedcode.com/app/project/dd508e3927954df9b118ea9578c32b82)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/531c2054c4874013b78ff7cebc46a6b2)](https://www.codacy.com/app/fhightower/threatconnect-populator)
 
 This script will create one of every possible object in ThreatConnect for testing or whatever other use you can find for it.
 
