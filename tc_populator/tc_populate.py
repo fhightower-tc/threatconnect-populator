@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """Script to create all available objects in ThreatConnect."""
 
-import argparse
 try:
     import ConfigParser
 except:
@@ -15,16 +14,59 @@ from threatconnect.Config.IndicatorType import IndicatorType
 from threatconnect.Config.ResourceType import ResourceType
 
 
-def init_parser():
-    """Initialize the argument parser."""
-    parser = argparse.ArgumentParser(description="Populate TC with test data")
-    parser.add_argument(dest="owner", type=str,
-                        help="owner to populate")
-    parser.add_argument("-c", "--cleanup", dest="cleanup",
-                        action="store_true",
-                        help="delete the data created by this script")
+TAG = "TC Populator Example"
 
-    return parser.parse_args()
+objects = {
+    "indicators": {
+        "address": {
+            "indicator": "1.1.1.1"
+        },
+        "asn": {
+            "indicator": {
+                "AS Number": "ASN22"
+            },
+            "type": IndicatorType.CUSTOM_INDICATORS
+        },
+        "cidrBlock": {
+            "indicator": {
+                "Block": "192.168.0.0/29"
+            },
+            "type": IndicatorType.CUSTOM_INDICATORS
+        },
+        "email_address": {
+            "indicator": "john.galt@example.com"
+        },
+        "file": {
+            "indicator": "8743b52063cd84097a65d1633f5c74f5"
+        },
+        "host": {
+            "indicator": "example.com"
+        },
+        "mutex": {
+            "indicator": {
+                "Mutex": "ExAmPLe MUtEx"
+            },
+            "type": IndicatorType.CUSTOM_INDICATORS
+        },
+        "registryKey": {
+            "indicator": {
+                "Key Name": "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Hardware Profiles\Current",
+                "Value Name": "Autopopulate",
+                "Value Type": "REG_DWORD"
+            },
+            "type": IndicatorType.CUSTOM_INDICATORS
+        },
+        "url": {
+            "indicator": "https://example.com/test/bingo.html"
+        },
+        "userAgent": {
+            "indicator": {
+                "User Agent String": "PeachWebKit/100.00 (KHTML, like Nothing Else)"
+            },
+            "type": IndicatorType.CUSTOM_INDICATORS
+        },
+    },
+}
 
 
 def init_tc():
@@ -49,16 +91,27 @@ def init_tc():
     return tc
 
 
-def create_groups(owner):
+def create_groups(tc, owner):
     """Create groups."""
     created_groups = list()
 
-    for group_type in OBJECTS["groups"]:
+    # define the groups to be created
+    objects['groups'] = {
+        "adversary": tc.adversaries(),
+        "campaign": tc.campaigns(),
+        "document": tc.documents(),
+        "email": tc.emails(),
+        "incident": tc.incidents(),
+        "signature": tc.signatures(),
+        "threat": tc.threats(),
+    }
+
+    for group_type in objects["groups"]:
         print("Creating {} group".format(group_type))
         group_object = None
 
         # instantiate object of a group type
-        group_object = OBJECTS["groups"][group_type]
+        group_object = objects["groups"][group_type]
 
         # create a new object of the current type
         new_object = group_object.add("{} Example".format(group_type.title()),
@@ -113,20 +166,20 @@ def create_groups(owner):
     return created_groups
 
 
-def create_indicators(owner, groups):
+def create_indicators(tc, owner, groups):
     """Create indicators."""
     indicators = tc.indicators()
 
-    for indicator_type in OBJECTS["indicators"]:
+    for indicator_type in objects["indicators"]:
         print("Creating {} indicator".format(indicator_type))
-        if OBJECTS["indicators"][indicator_type].get("type"):
+        if objects["indicators"][indicator_type].get("type"):
             # create a custom indicator
-            new_indicator = indicators.add(OBJECTS["indicators"][indicator_type]["indicator"],
-                                           owner=owner, type=OBJECTS["indicators"][indicator_type]["type"],
+            new_indicator = indicators.add(objects["indicators"][indicator_type]["indicator"],
+                                           owner=owner, type=objects["indicators"][indicator_type]["type"],
                                            api_entity=indicator_type)
         else:
             # create a standard indicator
-            new_indicator = indicators.add(OBJECTS["indicators"][indicator_type]["indicator"], owner)
+            new_indicator = indicators.add(objects["indicators"][indicator_type]["indicator"], owner)
 
             # create association with one of the groups (currently, this only works for non-custom indicators)
             group_index = random.randint(0, len(groups) - 1)
@@ -155,7 +208,7 @@ def create_indicators(owner, groups):
             print("Error: {0}".format(e))
 
 
-def create_task(owner):
+def create_task(tc, owner):
     """Create Task."""
     # instantiate Tasks object
     tasks = tc.tasks()
@@ -179,7 +232,7 @@ def create_task(owner):
         print("Error: {0}".format(e))
 
 
-def create_victim(owner):
+def create_victim(tc, owner):
     """Create Victim."""
     from threatconnect.VictimAssetObject import VictimAssetObject
 
@@ -235,7 +288,7 @@ def create_victim(owner):
         print("Error: {0}".format(e))
 
 
-def cleanup(owner):
+def cleanup(tc, owner):
     """Delete all of the data that was just created."""
     # delete all of the groups
     groups = tc.groups()
@@ -304,92 +357,28 @@ def cleanup(owner):
     print("\nEverything is cleaned up. You're good to go!")
 
 
-def main():
+def main(args):
     """."""
-    args = init_parser()
-
-    # create group objects
-    created_groups = create_groups(args.owner)
-
-    # create indicator objects
-    create_indicators(args.owner, created_groups)
-
-    # create task
-    create_task(args.owner)
-
-    # create victim
-    create_victim(args.owner)
-
-    if args.cleanup:
-        # delete everything we just created
-        cleanup(args.owner)
-
-
-if __name__ == "__main__":
     # initialize TC instance
     tc = init_tc()
 
-    TAG = "TC Populator Example"
+    # create group objects
+    created_groups = create_groups(tc, args['<owner>'])
 
-    OBJECTS = {
-        "groups": {
-            "adversary": tc.adversaries(),
-            "campaign": tc.campaigns(),
-            "document": tc.documents(),
-            "email": tc.emails(),
-            "incident": tc.incidents(),
-            "signature": tc.signatures(),
-            "threat": tc.threats(),
-        },
-        "indicators": {
-            "address": {
-                "indicator": "1.1.1.1"
-            },
-            "asn": {
-                "indicator": {
-                    "AS Number": "ASN22"
-                },
-                "type": IndicatorType.CUSTOM_INDICATORS
-            },
-            "cidrBlock": {
-                "indicator": {
-                    "Block": "192.168.0.0/29"
-                },
-                "type": IndicatorType.CUSTOM_INDICATORS
-            },
-            "email_address": {
-                "indicator": "john.galt@example.com"
-            },
-            "file": {
-                "indicator": "8743b52063cd84097a65d1633f5c74f5"
-            },
-            "host": {
-                "indicator": "example.com"
-            },
-            "mutex": {
-                "indicator": {
-                    "Mutex": "ExAmPLe MUtEx"
-                },
-                "type": IndicatorType.CUSTOM_INDICATORS
-            },
-            "registryKey": {
-                "indicator": {
-                    "Key Name": "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Hardware Profiles\Current",
-                    "Value Name": "Autopopulate",
-                    "Value Type": "REG_DWORD"
-                },
-                "type": IndicatorType.CUSTOM_INDICATORS
-            },
-            "url": {
-                "indicator": "https://example.com/test/bingo.html"
-            },
-            "userAgent": {
-                "indicator": {
-                    "User Agent String": "PeachWebKit/100.00 (KHTML, like Nothing Else)"
-                },
-                "type": IndicatorType.CUSTOM_INDICATORS
-            },
-        },
-    }
+    # create indicator objects
+    create_indicators(tc, args['<owner>'], created_groups)
 
+    # create task
+    create_task(tc, args['<owner>'])
+
+    # create victim
+    create_victim(tc, args['<owner>'])
+
+    if args['--cleanup']:
+        # delete everything we just created
+        cleanup(tc, args['<owner>'])
+
+
+if __name__ == "__main__":
+    # initialize values used in the script
     main()
