@@ -377,8 +377,3 @@ def main(args):
     if args['--cleanup']:
         # delete everything we just created
         cleanup(tc, args['<owner>'])
-
-
-if __name__ == "__main__":
-    # initialize values used in the script
-    main()
