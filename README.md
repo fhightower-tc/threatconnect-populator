@@ -28,28 +28,30 @@ cd threatconnect-populator
 # setup a tc.conf file
 vi ./tc.conf  
 # ^ paste your creds and config. settings into the file (see: https://docs.threatconnect.com/en/latest/python/python_sdk.html#configuration)
+
+# install the script
+python3 setup.py install --user
 ```
 
 ## Usage
 
-The script expects one argument providing the owner into which the data will be created:
+The script expects the path to a tc.conf file (see https://docs.threatconnect.com/en/latest/python/python_sdk.html#configuration for more details on what this file should look like) and the owner into which the data will be created:
 
 ```
-python tc_populate.py [-h] [-c] owner
+Usage:
+  tc_populate [-c|--cleanup] <path_to_api_conf_file> <owner> 
+  tc_populate -h | --help
+  tc_populate --version
 
-Populate TC with test data
-
-positional arguments:
-  owner          owner to populate
-
-optional arguments:
-  -h, --help     show this help message and exit
-  -c, --cleanup  delete the data created by this script
+Options:
+  -h, --help     Show this screen.
+  --version     Show version.
+  -c, --cleanup  Delete items after creation
 ```
 
 Simple example:
 
-`python tc_populate.py "Example Community"`
+`tc_populate ./tc.conf "Example Community"`
 
 The script works in python 2.x and 3.x .
 
@@ -57,7 +59,7 @@ The script works in python 2.x and 3.x .
 
 If you want to delete all of the test data created when running this script, you can do this by including -c when calling the script as shown below:
 
-`python tc_populate.py -c "Example Community"`
+`tc_populate -c ./tc.conf "Example Community"`
 
 This will create all of the object and then delete them if everything was created.
 
