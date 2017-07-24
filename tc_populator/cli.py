@@ -2,7 +2,7 @@
 """ThreatConnect Populator.
 
 Usage:
-  tc_populate [-c|--cleanup] <owner>
+  tc_populate [-c|--cleanup] <path_to_api_conf_file> <owner> 
   tc_populate -h | --help
   tc_populate --version
 

@@ -69,12 +69,12 @@ objects = {
 }
 
 
-def init_tc():
+def init_tc(tc_conf_path):
     """Initialize a TC instance."""
     tc = None
 
     config = ConfigParser.RawConfigParser()
-    config.read("./tc.conf")
+    config.read(tc_conf_path)
 
     try:
         api_access_id = config.get("threatconnect", "api_access_id")
@@ -360,7 +360,7 @@ def cleanup(tc, owner):
 def main(args):
     """."""
     # initialize TC instance
-    tc = init_tc()
+    tc = init_tc(args['<path_to_api_conf_file>'])
 
     # create group objects
     created_groups = create_groups(tc, args['<owner>'])
